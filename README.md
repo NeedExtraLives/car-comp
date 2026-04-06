@@ -2,6 +2,8 @@
 
 Static **vehicle comparison** page: featured BMW X1 vs Lexus UX write-up, press summaries, and a **custom two-vehicle compare** (2024+) using live [EPA FuelEconomy.gov](https://www.fueleconomy.gov/) data.
 
+**Source of truth:** edit only **`index.html`** in this repo (no duplicate copies elsewhere).
+
 **Live site:**  
 [https://needextralives.github.io/car-comp/](https://needextralives.github.io/car-comp/)
 
