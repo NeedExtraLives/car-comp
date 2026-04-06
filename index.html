@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vehicle comparison — featured BMW vs Lexus UX + custom EPA builder (2024+)</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f9;
+      --card: #fff;
+      --text: #1a1d21;
+      --muted: #5c6370;
+      --accent: #1c69d4;
+      --border: #e2e5ea;
+      --note: #fff8e6;
+      --note-border: #e6c200;
+      --table-header-bg: #eef1f5;
+      --table-stripe: #fafbfc;
+      --quote-bg: #f3f6fa;
+      --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #12141a;
+      --card: #1a1d24;
+      --text: #e8eaef;
+      --muted: #9aa3b2;
+      --accent: #6eb0ff;
+      --border: #2f3540;
+      --note: #252218;
+      --note-border: #b8922e;
+      --table-header-bg: #232830;
+      --table-stripe: #151820;
+      --quote-bg: #232830;
+      --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      color: var(--text);
+      background: var(--bg);
+    }
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 3rem;
+    }
+    header {
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      line-height: 1.25;
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+    section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--card-shadow);
+    }
+    h2 {
+      font-size: 1.15rem;
+      margin: 0 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent);
+      font-weight: 650;
+    }
+    h3 {
+      font-size: 1.05rem;
+      margin: 1.25rem 0 0.5rem;
+      font-weight: 600;
+    }
+    h3:first-of-type { margin-top: 0; }
+    p { margin: 0 0 0.85rem; }
+    p:last-child { margin-bottom: 0; }
+    ul {
+      margin: 0 0 0.85rem;
+      padding-left: 1.35rem;
+    }
+    li { margin-bottom: 0.35rem; }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover { text-decoration: underline; }
+    .note {
+      background: var(--note);
+      border: 1px solid var(--note-border);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.95rem;
+    }
+    .note strong { color: var(--text); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin: 0.5rem 0 0;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.65rem 0.75rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--table-header-bg);
+      font-weight: 600;
+    }
+    tr:nth-child(even) td { background: var(--table-stripe); }
+    .links-grid {
+      display: grid;
+      gap: 0.5rem;
+    }
+    .links-grid a {
+      display: inline-block;
+      word-break: break-word;
+    }
+    footer {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+    }
+    caption {
+      caption-side: bottom;
+      text-align: left;
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding-top: 0.5rem;
+    }
+    .press-outlet {
+      margin-top: 1.35rem;
+      padding-top: 1.1rem;
+      border-top: 1px dashed var(--border);
+    }
+    .press-outlet:first-of-type {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+    .press-outlet h3 {
+      margin-top: 0;
+      font-size: 1.08rem;
+    }
+    .press-meta {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin: -0.35rem 0 0.65rem;
+    }
+    .theme-toggle {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top, 0px));
+      left: max(12px, env(safe-area-inset-left, 0px));
+      z-index: 10000;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      min-height: 40px;
+      padding: 0 14px;
+      font: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      box-shadow: var(--card-shadow);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .theme-toggle:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .theme-toggle .theme-toggle__icon {
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+    blockquote.press-quote {
+      margin: 0.75rem 0;
+      padding: 0.65rem 0.85rem;
+      border-left: 4px solid var(--accent);
+      background: var(--quote-bg);
+      font-size: 0.92rem;
+      font-style: italic;
+    }
+    blockquote.press-quote cite {
+      display: block;
+      margin-top: 0.45rem;
+      font-size: 0.8rem;
+      font-style: normal;
+      color: var(--muted);
+    }
+    .press-note {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+    .compare-builder .cmp-vehicles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 0.75rem;
+    }
+    @media (max-width: 720px) {
+      .compare-builder .cmp-vehicles { grid-template-columns: 1fr; }
+    }
+    .cmp-fieldset {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1rem 0.85rem;
+      margin: 0;
+      min-width: 0;
+    }
+    .cmp-fieldset legend {
+      font-weight: 650;
+      padding: 0 0.35rem;
+      color: var(--text);
+    }
+    .cmp-row { margin-bottom: 0.75rem; }
+    .cmp-row label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+    .cmp-row select {
+      width: 100%;
+      max-width: 100%;
+      padding: 0.5rem 0.55rem;
+      font: inherit;
+      font-size: 0.9rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+    }
+    .cmp-row select:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    .cmp-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .cmp-generate {
+      padding: 0.65rem 1.35rem;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 650;
+      cursor: pointer;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: var(--accent);
+      color: #fff;
+    }
+    html[data-theme="dark"] .cmp-generate { color: #0a0e14; }
+    .cmp-generate:hover { filter: brightness(1.06); }
+    .cmp-generate:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .cmp-generate:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      filter: none;
+    }
+    .cmp-epa-link {
+      font-size: 0.88rem;
+    }
+    .cmp-status {
+      min-height: 1.35rem;
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-top: 0.85rem;
+    }
+    .cmp-status.cmp-status--err { color: #b00020; }
+    html[data-theme="dark"] .cmp-status.cmp-status--err { color: #ff8a8a; }
+    #cmp-output { margin-top: 1.25rem; }
+    #cmp-output h3 { margin-top: 1.25rem; }
+    #cmp-output h3:first-child { margin-top: 0; }
+  </style>
+</head>
+<body>
+  <button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false" title="Toggle light or dark theme">
+    <span class="theme-toggle__icon" id="theme-toggle-icon" aria-hidden="true">🌙</span>
+    <span id="theme-toggle-label">Dark</span>
+  </button>
+  <script>
+    (function () {
+      var storageKey = "bmw-ux-comparison-theme";
+      var root = document.documentElement;
+      var btn = document.getElementById("theme-toggle");
+      var label = document.getElementById("theme-toggle-label");
+      var icon = document.getElementById("theme-toggle-icon");
+      function setTheme(dark) {
+        if (dark) {
+          root.setAttribute("data-theme", "dark");
+          btn.setAttribute("aria-pressed", "true");
+          label.textContent = "Light";
+          icon.textContent = "☀";
+          btn.title = "Switch to light theme";
+          btn.setAttribute("aria-label", "Switch to light theme");
+        } else {
+          root.removeAttribute("data-theme");
+          btn.setAttribute("aria-pressed", "false");
+          label.textContent = "Dark";
+          icon.textContent = "🌙";
+          btn.title = "Switch to dark theme";
+          btn.setAttribute("aria-label", "Switch to dark theme");
+        }
+        try {
+          localStorage.setItem(storageKey, dark ? "dark" : "light");
+        } catch (e) {}
+      }
+      var saved = null;
+      try {
+        saved = localStorage.getItem(storageKey);
+      } catch (e) {}
+      var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var initialDark = saved === "dark" || (saved !== "light" && prefersDark);
+      setTheme(initialDark);
+      btn.addEventListener("click", function () {
+        setTheme(root.getAttribute("data-theme") !== "dark");
+      });
+    })();
+  </script>
+  <div class="wrap">
+    <header>
+      <h1>BMW X1 hybrid vs Lexus UX 250h</h1>
+      <p class="subtitle">Specifications, driving behavior, noise, Portland-area used-car notes, summaries from Car and Driver, Road &amp; Track, and Top Gear, plus a custom EPA-based comparison builder</p>
+    </header>
+
+    <section class="compare-builder" id="compare-builder" aria-labelledby="compare-builder-title">
+      <h2 id="compare-builder-title">Build a custom comparison (2024+)</h2>
+      <p class="press-meta">Pick <strong>two vehicles</strong> from <strong>ten major manufacturers</strong>. Model and trim lists are loaded live from the U.S. EPA <a href="https://www.fueleconomy.gov/feg/ws/">FuelEconomy.gov web service</a> (official fuel economy labels: engine, drivetrain, MPG, emissions, and related fields). If lists fail to load, open this file from a local web server or check your network — some browsers restrict <code>file://</code> requests.</p>
+      <div class="cmp-vehicles">
+        <fieldset class="cmp-fieldset">
+          <legend>Vehicle A</legend>
+          <div class="cmp-row">
+            <label for="cmp-a-make">Make</label>
+            <select id="cmp-a-make" autocomplete="off">
+              <option value="">Select make…</option>
+              <option value="BMW">BMW</option>
+              <option value="Chevrolet">Chevrolet</option>
+              <option value="Ford">Ford</option>
+              <option value="Honda">Honda</option>
+              <option value="Hyundai">Hyundai</option>
+              <option value="Kia">Kia</option>
+              <option value="Mercedes-Benz">Mercedes-Benz</option>
+              <option value="Nissan">Nissan</option>
+              <option value="Toyota">Toyota</option>
+              <option value="Volkswagen">Volkswagen</option>
+            </select>
+          </div>
+          <div class="cmp-row">
+            <label for="cmp-a-year">Model year</label>
+            <select id="cmp-a-year" autocomplete="off" disabled>
+              <option value="">Select year…</option>
+            </select>
+          </div>
+          <div class="cmp-row">
+            <label for="cmp-a-model">Model</label>
+            <select id="cmp-a-model" autocomplete="off" disabled>
+              <option value="">Select model…</option>
+            </select>
+          </div>
+          <div class="cmp-row">
+            <label for="cmp-a-trim">Trim / powertrain</label>
+            <select id="cmp-a-trim" autocomplete="off" disabled>
+              <option value="">Select trim…</option>
+            </select>
+          </div>
+        </fieldset>
+        <fieldset class="cmp-fieldset">
+          <legend>Vehicle B</legend>
+          <div class="cmp-row">
+            <label for="cmp-b-make">Make</label>
+            <select id="cmp-b-make" autocomplete="off">
+              <option value="">Select make…</option>
+              <option value="BMW">BMW</option>
+              <option value="Chevrolet">Chevrolet</option>
+              <option value="Ford">Ford</option>
+              <option value="Honda">Honda</option>
+              <option value="Hyundai">Hyundai</option>
+              <option value="Kia">Kia</option>
+              <option value="Mercedes-Benz">Mercedes-Benz</option>
+              <option value="Nissan">Nissan</option>
+              <option value="Toyota">Toyota</option>
+              <option value="Volkswagen">Volkswagen</option>
+            </select>
+          </div>
+          <div class="cmp-row">
+            <label for="cmp-b-year">Model year</label>
+            <select id="cmp-b-year" autocomplete="off" disabled>
+              <option value="">Select year…</option>
+            </select>
+          </div>
+          <div class="cmp-row">
+            <label for="cmp-b-model">Model</label>
+            <select id="cmp-b-model" autocomplete="off" disabled>
+              <option value="">Select model…</option>
+            </select>
+          </div>
+          <div class="cmp-row">
+            <label for="cmp-b-trim">Trim / powertrain</label>
+            <select id="cmp-b-trim" autocomplete="off" disabled>
+              <option value="">Select trim…</option>
+            </select>
+          </div>
+        </fieldset>
+      </div>
+      <div class="cmp-actions">
+        <button type="button" class="cmp-generate" id="cmp-generate" disabled>Generate comparison</button>
+        <a class="cmp-epa-link" id="cmp-epa-sbs" href="https://www.fueleconomy.gov/" style="display:none;" target="_blank" rel="noopener">Open side-by-side on FuelEconomy.gov</a>
+      </div>
+      <p class="cmp-status" id="cmp-status" role="status" aria-live="polite"></p>
+      <div id="cmp-output" hidden></div>
+    </section>
+
+    <div class="note">
+      <strong>Model names.</strong> “Lexus 250uh” usually means the <strong>Lexus UX 250h</strong>. Lexus does not use the label “250uh.” If you meant another model (e.g. NX 350h), rerun the comparison for that vehicle.<br><br>
+      <strong>U.S. market — BMW X1 “hybrid.”</strong> The plug-in <strong>X1 xDrive30e</strong> is the global hybrid variant. On <a href="https://www.bmwusa.com/vehicles/plug-in-hybrid-electric.html">BMW USA’s official PHEV page</a>, listed plug-ins are the 550e, X5 xDrive50e, 750e, M5, XM, and M5 Touring — <strong>not the X1</strong>. New U.S. X1 inventory is primarily <strong>gasoline</strong> (e.g. xDrive28i, M35i). Used “X1 hybrid” searches in Oregon will usually show <strong>gas X1s</strong> unless a listing explicitly says plug-in / xDrive30e.
+    </div>
+
+    <section>
+      <h2>Press perspectives</h2>
+      <p>Summaries below are drawn from <strong>Car and Driver</strong>, <strong>Road &amp; Track</strong>, and <strong>Top Gear</strong> (UK). They are <strong>not independent tests by this document</strong>; follow the links for full context, photos, and updates. <span class="press-note">Car and Driver and Road &amp; Track’s recent U.S. X1 reviews focus on the <strong>gasoline</strong> U11 X1 (xDrive28i / M35i). Top Gear’s X1 coverage discusses the <strong>wider global range</strong>, including plug-in hybrids and the electric iX1.</span></p>
+
+      <div class="press-outlet">
+        <h3>Car and Driver</h3>
+        <p class="press-meta">United States — <a href="https://www.caranddriver.com/bmw/x1">BMW X1 hub</a> · <a href="https://www.caranddriver.com/reviews/a46894162/2024-lexus-ux250h-hybrid-test/">2024 Lexus UX250h instrumented test</a></p>
+        <p><strong>BMW X1 (recent overview, e.g. 2026 model page):</strong> Rated <strong>9/10</strong> and named an <strong>Editors’ Choice</strong>. Placed <strong>#2 in “Best Subcompact Luxury SUVs”</strong> (behind the Volvo XC40 at 9.5/10). <em>Highs:</em> sharp handling, strong standard equipment, roomy for a subcompact SUV. <em>Lows:</em> occasional turbo lag, the M35i rides too harshly, and the minimalist dash means <strong>few physical infotainment controls</strong>. <em>Verdict:</em> a “dynamic overachiever” and one of their favorite subcompact crossovers. Listed powertrain summary: <strong>gasoline</strong>, standard AWD, EPA combined MPG in the <strong>27–28</strong> range on the model-year page consulted.</p>
+        <blockquote class="press-quote">The X1 is a dynamic overachiever, its crisp handling and a practical, modern interior making it one of our favorite subcompact crossovers.<cite>— Car and Driver, BMW X1 verdict (overview)</cite></blockquote>
+        <p><strong>Lexus UX250h (“2024 Lexus UX250h Tested: City Sipper”):</strong> Positions the UX as a <strong>tall hatchback</strong> (Mercedes GLA–like), a strong <strong>urban</strong> fit with a small footprint, but <strong>poor rearward visibility</strong> (camera reliance). Instrumented FWD test: <strong>0–60 mph in 8.2 s</strong> (quicker than a previously tested AWD UX250h at 8.6 s), still behind quicker rivals (Audi Q3, GLA250, Volvo XC40 B5). CVT described as giving somewhat <strong>“slurred”</strong> throttle response; <strong>73 dB</strong> at wide-open throttle. <strong>Observed 35 mpg</strong> overall and <strong>35 mpg</strong> in their 75-mph highway loop vs EPA <strong>42 mpg</strong> combined — still <strong>8 mpg better on that highway test</strong> than an XC40 B5. Praise for <strong>bump isolation</strong>, body control, and steering weight; <strong>0.81 g</strong> on the skidpad (vs <strong>0.86 g</strong> for tested AWD). <em>Highs:</em> fuel economy, Lexus-like ride, in-town maneuverability. <em>Lows:</em> slow acceleration, tight back seat, small cargo hold (e.g. <strong>four</strong> carry-ons vs six in GLA/XC40). Notes the UX250h’s “econocar acceleration” undercuts some of the premium feel; <strong>UX300h</strong> update called out as the fix for power and battery.</p>
+        <blockquote class="press-quote">The UX leans into its primary strength.<cite>— Car and Driver, 2024 UX250h test verdict</cite></blockquote>
+      </div>
+
+      <div class="press-outlet">
+        <h3>Road &amp; Track</h3>
+        <p class="press-meta">United States — <a href="https://www.roadandtrack.com/reviews/g43568717/2023-bmw-x1-xdrive-28i/">2023 BMW X1 xDrive28i review</a> · <a href="https://www.roadandtrack.com/reviews/a61864191/2025-lexus-ux-300h-awd-review/">2025 Lexus UX 300h review</a> (successor powertrain to the UX 250h)</p>
+        <p><strong>BMW X1 xDrive28i (2023 U.S. review):</strong> Calls the third-gen X1 a <strong>“pleasantly surprising baby crossover.”</strong> <em>Pros:</em> relatively affordable pricing, <strong>great infotainment</strong>, practicality, <strong>efficient, punchy</strong> 241-hp 2.0L and seven-speed DCT, <strong>well-tuned ride</strong> (praised damping on rough NYC Belt Parkway). Exterior: <strong>“chunky and muscular, almost like a downsized X5.”</strong> Rear seats fold 40/20/40 with good legroom for the class; <strong>25.7 cu ft</strong> cargo behind row two — more usable than many tiny SUVs. <em>Cons:</em> <strong>transmission “clunky”</strong> — slow downshifts, <strong>clumsy off-the-line</strong>; very few physical knobs (climate via touchscreen criticized); stop-start buried in menus. Notes seat heating and lumbar as optional — “a little stingy.”</p>
+        <p><strong>Lexus UX line (2025 UX 300h — same nameplate family, updated hybrid):</strong> Headline: <strong>“A Prius for People Who Don’t Want a Prius.”</strong> Draws a direct comparison to the Toyota Prius powertrain philosophy. Describes merging on a short on-ramp as needing <strong>full throttle</strong>; at max acceleration the CVT holds the engine high with a coarse sound. Criticizes <strong>rear space</strong> and cargo (17 cu ft claimed feels smaller in practice); <strong>6.3 inches ground clearance</strong> and <strong>14-degree approach angle</strong> — explicitly not an off-roader. AWD characterized as helping <strong>low-speed traction</strong> / snow maneuvers, not serious trail work. Notes a small <strong>10.6-gallon</strong> tank and roughly <strong>~315-mile</strong> highway range in real use. Upside: conventional instruments, easier climate controls than Prius, quiet luxury ambiance, and <strong>no Prius “stigma.”</strong></p>
+      </div>
+
+      <div class="press-outlet">
+        <h3>Top Gear</h3>
+        <p class="press-meta">United Kingdom — <a href="https://www.topgear.com/car-reviews/bmw/x1">BMW X1 review (Mk3 / U11 era)</a> · <a href="https://www.topgear.com/car-reviews/lexus/250h-20-f-sport-5dr-cvt/first-drive">Lexus UX 250h first drive</a> (April 2019)</p>
+        <p><strong>BMW X1 (review published March 2023, score 7/10):</strong> Describes the Mk3 X1 as <strong>no longer “little”</strong> — visually closer to an old X3 — and among the better-looking recent BMW SUVs. Line-up includes <strong>petrol, diesel, plug-in hybrid, and EV</strong>; notes global sales mix predictions. <strong>Plug-in hybrids (25e and 30e):</strong> both AWD, with claims up to <strong>~56 miles</strong> electric range (UK framing); the more powerful PHEV quoted at <strong>~322 bhp</strong> and <strong>0–62 mph in ~5.7 s</strong>. <em>Good stuff:</em> <strong>“Punchy electric version,”</strong> cabin quality and space, practicality. <em>Bad stuff:</em> <strong>worsened interior tech</strong>, <strong>coarse petrol engines</strong>, <strong>“occasionally dopey gearbox.”</strong> Verdict stresses the <strong>iX1</strong> (EV) as <strong>“the pick of the bunch”</strong> and what “saves the day” for the range.</p>
+        <blockquote class="press-quote">BMW’s littlest SUV is no longer so little, but is hampered by its interior tech and combustion engines. iX1 is the pick of the bunch<cite>— Top Gear, BMW X1 review deck</cite></blockquote>
+        <p><strong>Lexus UX 250h (first drive, April 2019, score 7/10):</strong> Frames the UX as the <strong>“self-charging” hybrid</strong> alternative for buyers who can’t plug in (vs PHEVs like the Mini Countryman PHEV). Styling contrast: vs <strong>“tedious” German rivals</strong> (BMW X1, Audi Q3, Mercedes GLA) the UX is <strong>“easily the most interesting looking.”</strong> Praises hybrid refinement — <strong>“unfathomably quiet,”</strong> better CVT behavior than older Lexus hybrids, meaningful <strong>e-boost</strong> when needed. Gripes: <strong>poor visibility</strong>, <strong>claustrophobic</strong> cabin vs Volvo XC40, <strong>“woolly” steering</strong>, reliance on sensors/cameras. Strong criticism of era-appropriate <strong>Remote Touch / touchpad infotainment</strong> (later UX generations moved to touchscreen). Real-world economy in the <strong>mid-40s UK mpg</strong> on a mixed route. Recommends <strong>skipping AWD</strong> for weight; <strong>F Sport</strong> without ruining ride vs some German sport trims. Closing line: more cramped, butcher-looking <strong>“Toyota Prius wearing a Scream mask”</strong> — but distinctive.</p>
+      </div>
+
+      <h3 style="margin-top:1.5rem;">How press maps to this comparison</h3>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Theme</th>
+            <th scope="col">Car and Driver</th>
+            <th scope="col">Road &amp; Track</th>
+            <th scope="col">Top Gear</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">BMW X1 dynamics</th>
+            <td>Sharp handling; class favorite; turbo lag noted</td>
+            <td>Chassis “spot-on,” good damping; DCT clumsy at low speed</td>
+            <td>PHEV quick; petrol engines coarse; gearbox sometimes dopey</td>
+          </tr>
+          <tr>
+            <th scope="row">Lexus UX urban / efficiency</th>
+            <td>City sipper; 35 mpg real-world test vs 42 EPA; tight packaging</td>
+            <td>UX 300h: Prius kin; tight rear/cargo; not a real “crossover” for space</td>
+            <td>UX 250h: hybrid quiet; strong economy; poor visibility</td>
+          </tr>
+          <tr>
+            <th scope="row">Noise / refinement</th>
+            <td>UX: 73 dB WOT; CVT drone under hard accel</td>
+            <td>UX 300h: coarse engine note at max CVT demand</td>
+            <td>UX 250h: “unfathomably quiet” vs older Lexus hybrids</td>
+          </tr>
+          <tr>
+            <th scope="row">Off-road pretense</th>
+            <td>UX: no off-road pretense; FWD often enough</td>
+            <td>UX 300h: low clearance, 14° approach — joke for “Jeep people”</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Specification comparison</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Topic</th>
+            <th scope="col">BMW X1 xDrive30e (PHEV, global)</th>
+            <th scope="col">Lexus UX 250h (self-charging hybrid)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Architecture</th>
+            <td>PHEV: turbo 3-cylinder petrol + electric motor; xDrive (layout varies by market).</td>
+            <td>Toyota-style hybrid: 2.0L 4-cylinder + hybrid system; FWD standard, AWD optional on many years.</td>
+          </tr>
+          <tr>
+            <th scope="row">Total system power</th>
+            <td>Typically ~320+ hp class combined (market-dependent).</td>
+            <td>~181 hp combined (UX 250h class).</td>
+          </tr>
+          <tr>
+            <th scope="row">Torque / feel</th>
+            <td>Strong low-end and passing when electric torque blends in; quick for the segment.</td>
+            <td>Fine for city/suburban driving; not tuned for aggressive acceleration.</td>
+          </tr>
+          <tr>
+            <th scope="row">Transmission</th>
+            <td>7-speed dual-clutch (Steptronic).</td>
+            <td>eCVT; smooth, no traditional stepped shifts.</td>
+          </tr>
+          <tr>
+            <th scope="row">Electric driving</th>
+            <td>Meaningful EV range when charged (WLTP often ~70+ km; real EPA-style figures differ). Short trips can be gas-free if you plug in.</td>
+            <td>No plug; brief EV-only phases at low speeds; efficiency from regen and engine optimization.</td>
+          </tr>
+          <tr>
+            <th scope="row">Fuel economy (gas)</th>
+            <td>With depleted battery, battery weight matters; not the ultra-MPG story in charge-sustaining mode.</td>
+            <td>EPA-class ~40+ MPG combined typical (varies by year, FWD vs AWD, trim).</td>
+          </tr>
+          <tr>
+            <th scope="row">Size / packaging</th>
+            <td>Larger compact SUV: ~177 in length, ~106 in wheelbase; higher roof, more SUV stance.</td>
+            <td>Subcompact; lower hatch-like roof; tighter rear seat and cargo vs X1.</td>
+          </tr>
+          <tr>
+            <th scope="row">Cargo</th>
+            <td>U11 X1 often ~25+ cu ft behind second row, ~57 cu ft seats folded (published reviews).</td>
+            <td>Typically ~17 cu ft behind second row (among the smallest in class).</td>
+          </tr>
+          <tr>
+            <th scope="row">Charging</th>
+            <td>Home / public AC; plugging in is required for full PHEV benefit.</td>
+            <td>No charging required.</td>
+          </tr>
+          <tr>
+            <th scope="row">Towing / utility</th>
+            <td>Not tow-focused; check regional manual.</td>
+            <td>Light-duty at most; not a utility vehicle.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin-top:1rem;font-size:0.9rem;color:var(--muted);"><strong>Summary:</strong> X1 PHEV is faster, roomier, and can cover many city miles on electricity if you charge. UX 250h is simpler (no plug), often better on gas for steady hybrid use, and avoids charging logistics.</p>
+    </section>
+
+    <section>
+      <h2>Driving comparison</h2>
+      <h3>City</h3>
+      <ul>
+        <li><strong>X1 xDrive30e:</strong> Motor torque helps stop-and-go; quiet in EV mode with charge. DCT can feel more mechanical when the engine first fires. Still manageable but wider/taller than UX in tight spaces.</li>
+        <li><strong>UX 250h:</strong> Strong for traffic and parking; smooth eCVT takeoff; strong urban MPG; less punch for hard merges.</li>
+      </ul>
+      <h3>Highway</h3>
+      <ul>
+        <li><strong>X1 xDrive30e:</strong> Stable, confident passing; xDrive helps in wet conditions. Wind and tire noise can exceed “big luxury” expectations (see noise section).</li>
+        <li><strong>UX 250h:</strong> Relaxed cruiser; CVT keeps revs moderate; modest passing power; compliant ride but lighter and less planted than a larger SUV.</li>
+      </ul>
+      <h3>Off-road (realistic)</h3>
+      <p>Neither is a trail 4×4. Both can handle <strong>well-maintained gravel or dirt</strong> if you avoid grounding, rocks, and deep mud. AWD helps traction, not clearance. X1 feels slightly taller; UX is lower and easier to scrape; FWD UX can spin on loose uphill gravel. For serious trails or deep snow fields, consider a higher-clearance AWD vehicle or proper 4WD.</p>
+    </section>
+
+    <section>
+      <h2>Ride and noise (NVH)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Aspect</th>
+            <th scope="col">BMW X1 (U11)</th>
+            <th scope="col">Lexus UX 250h</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Ride</th>
+            <td>Firmer, controlled; sporty tuning. Sharper impacts on bad pavement.</td>
+            <td>Softer, more comfort-biased over small bumps.</td>
+          </tr>
+          <tr>
+            <th scope="row">Engine sound</th>
+            <td>3-cylinder PHEV can sound busy under load; very quiet in EV mode.</td>
+            <td>Often quiet at low speed; engine can rise in revs under hard acceleration (CVT).</td>
+          </tr>
+          <tr>
+            <th scope="row">Tire / road noise</th>
+            <td>Common theme: road noise rises on coarse highways; tire choice matters a lot.</td>
+            <td>Mixed reviews: fine for class; some note more road/wind noise than expected for the Lexus badge at highway speed.</td>
+          </tr>
+          <tr>
+            <th scope="row">Wind</th>
+            <td>Moderate; roof accessories can add buffeting.</td>
+            <td>Similar — not flagship-sedan silent.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin-top:1rem;"><strong>Net:</strong> UX often feels more relaxed in ride; X1 trades some refinement for handling sharpness. On both, tires and pavement quality strongly affect perceived noise.</p>
+    </section>
+
+    <section>
+      <h2>Used vehicles near Portland, Oregon</h2>
+      <p>Live, distance-sorted lists of <strong>10 BMW X1</strong> and <strong>10 Lexus UX 250h</strong> with exact current price, mileage, and miles from Portland cannot be guaranteed from a static export: inventory changes daily and major listing sites block automated scraping.</p>
+      <p><strong>How to replicate the list:</strong> Set zip to <strong>97201</strong> (or 97205 / 97210), filter <strong>used</strong>, sort by <strong>distance</strong>, model <strong>BMW X1</strong> or <strong>Lexus UX / UX 250h</strong>.</p>
+      <h3>Search links (open in browser; sort by distance)</h3>
+      <div class="links-grid">
+        <a href="https://www.cargurus.com/Cars/inventorylisting/viewDetailsFilterViewInventoryListing.action?zip=97201&distance=50&entitySelectingHelper.selectedEntity=d2436">CarGurus — used BMW X1, zip 97201</a>
+        <a href="https://www.cargurus.com/Cars/inventorylisting/viewDetailsFilterViewInventoryListing.action?zip=97201&distance=50&entitySelectingHelper.selectedEntity=d2921">CarGurus — used Lexus UX, zip 97201</a>
+        <a href="https://www.cars.com/shopping/results/?stock_type=used&zip=97201&maximum_distance=50&models[]=bmw-x1">Cars.com — used BMW X1 near Portland</a>
+        <a href="https://www.cars.com/shopping/results/?stock_type=used&zip=97201&maximum_distance=50&models[]=lexus-ux">Cars.com — used Lexus UX near Portland</a>
+        <a href="https://www.autotrader.com/cars-for-sale/bmw/x1/portland-or">Autotrader — BMW X1, Portland OR</a>
+        <a href="https://www.autotrader.com/cars-for-sale/lexus/ux/portland-or">Autotrader — Lexus UX, Portland OR</a>
+      </div>
+      <h3>Example snapshots (verify on dealer site; may be sold)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Example</th>
+            <th>Price (as reported)</th>
+            <th>Mileage</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2023 BMW X1 xDrive28i</td>
+            <td>$33,449</td>
+            <td>7,694</td>
+            <td>Gas model; Portland-area / regional listing context</td>
+          </tr>
+          <tr>
+            <td>2023 Lexus UX 250h FWD</td>
+            <td>$34,228</td>
+            <td>13,357</td>
+            <td>Example from indexed aggregator result</td>
+          </tr>
+        </tbody>
+        <caption>Portland used X1 listings are almost always gasoline unless the ad explicitly says plug-in hybrid / xDrive30e.</caption>
+      </table>
+    </section>
+
+    <section>
+      <h2>Next steps</h2>
+      <p>If you meant a different Lexus (e.g. NX) or want the comparison framed for <strong>U.S. gas X1 vs UX 250h</strong> only (matching typical Oregon used inventory), say which and the HTML can be updated.</p>
+    </section>
+
+    <footer>
+      Generated comparison document — open this file in any web browser. Custom comparisons use live EPA data (requires network).
+    </footer>
+  </div>
+  <script>
+    (function () {
+      var EPA = "https://www.fueleconomy.gov/ws/rest/vehicle";
+      var YEARS = [2024, 2025, 2026];
+
+      function $(id) { return document.getElementById(id); }
+
+      function escapeHtml(s) {
+        if (s == null || s === "") return "";
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function parseMenuItems(xmlText) {
+        var doc = new DOMParser().parseFromString(xmlText, "text/xml");
+        var err = doc.querySelector("parsererror");
+        if (err) throw new Error("Invalid menu response");
+        var items = doc.getElementsByTagName("menuItem");
+        var out = [];
+        for (var i = 0; i < items.length; i++) {
+          var t = items[i].getElementsByTagName("text")[0];
+          var v = items[i].getElementsByTagName("value")[0];
+          if (t && v) out.push({ text: t.textContent, value: v.textContent });
+        }
+        return out;
+      }
+
+      function parseVehicle(xmlText) {
+        var doc = new DOMParser().parseFromString(xmlText, "text/xml");
+        var err = doc.querySelector("parsererror");
+        if (err) throw new Error("Invalid vehicle response");
+        var v = doc.getElementsByTagName("vehicle")[0];
+        if (!v) throw new Error("No vehicle in response");
+        function tag(name) {
+          var el = v.getElementsByTagName(name)[0];
+          return el ? el.textContent.trim() : "";
+        }
+        return {
+          id: tag("id"),
+          year: tag("year"),
+          make: tag("make"),
+          model: tag("model"),
+          baseModel: tag("baseModel"),
+          vClass: tag("VClass"),
+          displ: tag("displ"),
+          cylinders: tag("cylinders"),
+          drive: tag("drive"),
+          trany: tag("trany"),
+          fuelType1: tag("fuelType1"),
+          fuelType2: tag("fuelType2"),
+          city08: tag("city08"),
+          highway08: tag("highway08"),
+          comb08: tag("comb08"),
+          combA08: tag("combA08"),
+          phevComb: tag("phevComb"),
+          co2: tag("co2"),
+          fuelCost08: tag("fuelCost08"),
+          startStop: tag("startStop"),
+          eng_dscr: tag("eng_dscr"),
+          tCharger: tag("tCharger"),
+          sCharger: tag("sCharger"),
+          range: tag("range"),
+          evMotor: tag("evMotor")
+        };
+      }
+
+      function setSelectOptions(select, items, placeholder, valueKey, textKey) {
+        select.innerHTML = "";
+        var ph = document.createElement("option");
+        ph.value = "";
+        ph.textContent = placeholder;
+        select.appendChild(ph);
+        items.forEach(function (item) {
+          var o = document.createElement("option");
+          o.value = item[valueKey];
+          o.textContent = item[textKey];
+          select.appendChild(o);
+        });
+      }
+
+      function fillYearSelect(sel) {
+        sel.innerHTML = "";
+        var ph = document.createElement("option");
+        ph.value = "";
+        ph.textContent = "Select year…";
+        sel.appendChild(ph);
+        YEARS.forEach(function (y) {
+          var o = document.createElement("option");
+          o.value = String(y);
+          o.textContent = String(y);
+          sel.appendChild(o);
+        });
+      }
+
+      function epaFetch(path) {
+        return fetch(EPA + path).then(function (res) {
+          if (!res.ok) throw new Error("EPA request failed (" + res.status + ")");
+          return res.text();
+        });
+      }
+
+      function resetModels(prefix) {
+        var model = $("cmp-" + prefix + "-model");
+        var trim = $("cmp-" + prefix + "-trim");
+        setSelectOptions(model, [], "Select model…", "value", "text");
+        setSelectOptions(trim, [], "Select trim…", "value", "text");
+        model.disabled = true;
+        trim.disabled = true;
+      }
+
+      function loadModels(prefix) {
+        var make = $("cmp-" + prefix + "-make").value;
+        var year = $("cmp-" + prefix + "-year").value;
+        var model = $("cmp-" + prefix + "-model");
+        var status = $("cmp-status");
+        if (!make || !year) {
+          resetModels(prefix);
+          return Promise.resolve();
+        }
+        model.disabled = true;
+        resetModels(prefix);
+        status.textContent = "Loading models for " + make + " " + year + "…";
+        status.classList.remove("cmp-status--err");
+        var q = "/menu/model?year=" + encodeURIComponent(year) + "&make=" + encodeURIComponent(make);
+        return epaFetch(q)
+          .then(parseMenuItems)
+          .then(function (items) {
+            if (!items.length) {
+              status.textContent = "No EPA models listed for " + make + " " + year + ". Try another year or make.";
+              return;
+            }
+            var opts = items.map(function (i) {
+              return { value: i.value, text: i.text };
+            });
+            setSelectOptions(model, opts, "Select model…", "value", "text");
+            model.disabled = false;
+            status.textContent = "";
+          })
+          .catch(function (e) {
+            status.textContent = "Could not load models: " + e.message;
+            status.classList.add("cmp-status--err");
+          });
+      }
+
+      function loadTrims(prefix) {
+        var make = $("cmp-" + prefix + "-make").value;
+        var year = $("cmp-" + prefix + "-year").value;
+        var modelName = $("cmp-" + prefix + "-model").value;
+        var trim = $("cmp-" + prefix + "-trim");
+        var status = $("cmp-status");
+        if (!make || !year || !modelName) {
+          setSelectOptions(trim, [], "Select trim…", "value", "text");
+          trim.disabled = true;
+          return Promise.resolve();
+        }
+        trim.disabled = true;
+        setSelectOptions(trim, [], "Loading trims…", "value", "text");
+        status.textContent = "Loading trims…";
+        status.classList.remove("cmp-status--err");
+        var q = "/menu/options?year=" + encodeURIComponent(year) + "&make=" + encodeURIComponent(make) + "&model=" + encodeURIComponent(modelName);
+        return epaFetch(q)
+          .then(parseMenuItems)
+          .then(function (items) {
+            if (!items.length) {
+              status.textContent = "No EPA trims found for that model.";
+              setSelectOptions(trim, [], "Select trim…", "value", "text");
+              trim.disabled = true;
+              return;
+            }
+            var opts = items.map(function (i) {
+              return { value: i.value, text: i.text };
+            });
+            setSelectOptions(trim, opts, "Select trim…", "value", "text");
+            trim.disabled = false;
+            if (opts.length === 1) {
+              trim.selectedIndex = 1;
+            }
+            status.textContent = "";
+          })
+          .catch(function (e) {
+            status.textContent = "Could not load trims: " + e.message;
+            status.classList.add("cmp-status--err");
+            setSelectOptions(trim, [], "Select trim…", "value", "text");
+            trim.disabled = true;
+          });
+      }
+
+      function updateGenerateEnabled() {
+        var a = $("cmp-a-trim").value;
+        var b = $("cmp-b-trim").value;
+        $("cmp-generate").disabled = !(a && b);
+      }
+
+      function fmtMoney(n) {
+        var x = parseInt(n, 10);
+        if (isNaN(x)) return "—";
+        return "$" + x.toLocaleString() + " / yr (est.)";
+      }
+
+      function row(label, a, b) {
+        var av = a != null && a !== "" ? a : "—";
+        var bv = b != null && b !== "" ? b : "—";
+        return "<tr><th scope=\"row\">" + escapeHtml(label) + "</th><td>" + escapeHtml(av) + "</td><td>" + escapeHtml(bv) + "</td></tr>";
+      }
+
+      function buildTakeaways(va, vb) {
+        var tips = [];
+        var ca = parseInt(va.comb08, 10);
+        var cb = parseInt(vb.comb08, 10);
+        if (!isNaN(ca) && !isNaN(cb) && ca !== cb) {
+          if (ca > cb) {
+            tips.push(va.make + " " + va.model + " shows higher EPA combined fuel economy (" + ca + " vs " + cb + " MPG).");
+          } else {
+            tips.push(vb.make + " " + vb.model + " shows higher EPA combined fuel economy (" + cb + " vs " + ca + " MPG).");
+          }
+        }
+        if (va.drive && vb.drive && va.drive !== vb.drive) {
+          tips.push("Drivetrain differs: " + va.drive + " vs " + vb.drive + ".");
+        }
+        if (va.fuelType1 && vb.fuelType1 && va.fuelType1 !== vb.fuelType1) {
+          tips.push("Primary fuel types differ: " + va.fuelType1 + " vs " + vb.fuelType1 + ".");
+        }
+        var da = parseFloat(va.displ);
+        var db = parseFloat(vb.displ);
+        if (!isNaN(da) && !isNaN(db) && Math.abs(da - db) > 0.1) {
+          tips.push("Displacement: " + da + " L (" + va.cylinders + " cyl) vs " + db + " L (" + vb.cylinders + " cyl) — larger engines are not always faster or thirstier; check real-world tests.");
+        }
+        if (!tips.length) {
+          tips.push("Use the specification table and the official EPA side-by-side link below for a detailed label-style comparison.");
+        }
+        return tips;
+      }
+
+      function renderComparison(va, vb) {
+        var titleA = va.year + " " + va.make + " " + va.model;
+        var titleB = vb.year + " " + vb.make + " " + vb.model;
+        var shortA = (va.baseModel || (va.model || "").split(/\s+/)[0] || "").trim();
+        var shortB = (vb.baseModel || (vb.model || "").split(/\s+/)[0] || "").trim();
+        var turbo = [];
+        if (va.tCharger === "T") turbo.push("turbocharged");
+        var tb = [];
+        if (vb.tCharger === "T") tb.push("turbocharged");
+        var engA = [va.displ ? va.displ + " L" : "", va.cylinders ? va.cylinders + " cyl" : "", turbo.join(" ")].filter(Boolean).join(", ") || "—";
+        var engB = [vb.displ ? vb.displ + " L" : "", vb.cylinders ? vb.cylinders + " cyl" : "", tb.join(" ")].filter(Boolean).join(", ") || "—";
+
+        var mpgA = va.comb08 ? va.city08 + " / " + va.highway08 + " / " + va.comb08 + " (city / hwy / comb)" : "—";
+        var mpgB = vb.comb08 ? vb.city08 + " / " + vb.highway08 + " / " + vb.comb08 + " (city / hwy / comb)" : "—";
+        if (va.phevComb && parseInt(va.phevComb, 10) > 0) mpgA += "; PHEV blended: " + va.phevComb + " MPG-eq (EPA)";
+        if (vb.phevComb && parseInt(vb.phevComb, 10) > 0) mpgB += "; PHEV blended: " + vb.phevComb + " MPG-eq (EPA)";
+
+        var tips = buildTakeaways(va, vb);
+        var tipsHtml = "<ul>" + tips.map(function (t) { return "<li>" + escapeHtml(t) + "</li>"; }).join("") + "</ul>";
+
+        var sbs = $("cmp-epa-sbs");
+        sbs.href = "https://www.fueleconomy.gov/feg/Find.do?action=sbs&id=" + encodeURIComponent(va.id) + "&id2=" + encodeURIComponent(vb.id);
+        sbs.style.display = "inline";
+        sbs.textContent = "Open this pair on FuelEconomy.gov (official side-by-side)";
+
+        var cdA = "https://www.google.com/search?q=" + encodeURIComponent("site:caranddriver.com " + va.year + " " + va.make + " " + shortA);
+        var cdB = "https://www.google.com/search?q=" + encodeURIComponent("site:caranddriver.com " + vb.year + " " + vb.make + " " + shortB);
+        var rtA = "https://www.google.com/search?q=" + encodeURIComponent("site:roadandtrack.com " + va.year + " " + va.make + " " + shortA);
+        var rtB = "https://www.google.com/search?q=" + encodeURIComponent("site:roadandtrack.com " + vb.year + " " + vb.make + " " + shortB);
+        var tgA = "https://www.google.com/search?q=" + encodeURIComponent("site:topgear.com " + va.make + " " + shortA);
+        var tgB = "https://www.google.com/search?q=" + encodeURIComponent("site:topgear.com " + vb.make + " " + shortB);
+
+        var html = "";
+        html += "<h3>Your selection</h3>";
+        html += "<table><thead><tr><th scope=\"col\">Topic</th><th scope=\"col\">" + escapeHtml(titleA) + "</th><th scope=\"col\">" + escapeHtml(titleB) + "</th></tr></thead><tbody>";
+        html += row("EPA vehicle class", va.vClass, vb.vClass);
+        html += row("Engine (EPA label)", engA, engB);
+        html += row("Engine description", va.eng_dscr, vb.eng_dscr);
+        html += row("Transmission", va.trany, vb.trany);
+        html += row("Drivetrain", va.drive, vb.drive);
+        html += row("Motor (if listed)", va.evMotor || "—", vb.evMotor || "—");
+        html += row("Primary fuel", va.fuelType1, vb.fuelType1);
+        html += row("Secondary fuel / electric", va.fuelType2 || "—", vb.fuelType2 || "—");
+        html += row("EPA MPG (city / hwy / comb)", mpgA, mpgB);
+        html += row("Tailpipe CO₂ (comb.)", va.co2 ? va.co2 + " g/mi" : "—", vb.co2 ? vb.co2 + " g/mi" : "—");
+        html += row("Annual fuel cost (EPA est.)", fmtMoney(va.fuelCost08), fmtMoney(vb.fuelCost08));
+        html += row("Stop / start", va.startStop, vb.startStop);
+        html += "</tbody></table>";
+
+        html += "<h3>Quick observations (auto-generated)</h3>";
+        html += "<p class=\"press-meta\">These bullets are simple arithmetic on EPA fields — not road tests.</p>";
+        html += tipsHtml;
+
+        html += "<h3>Reviews &amp; long-form tests (search)</h3>";
+        html += "<p class=\"press-meta\">No publication covers every trim; these searches narrow to Car and Driver, Road &amp; Track, and Top Gear.</p>";
+        html += "<div class=\"links-grid\">";
+        html += "<a href=\"" + escapeHtml(cdA) + "\" target=\"_blank\" rel=\"noopener\">Car and Driver — " + escapeHtml(va.make + " " + shortA + " " + va.year) + "</a>";
+        html += "<a href=\"" + escapeHtml(cdB) + "\" target=\"_blank\" rel=\"noopener\">Car and Driver — " + escapeHtml(vb.make + " " + shortB + " " + vb.year) + "</a>";
+        html += "<a href=\"" + escapeHtml(rtA) + "\" target=\"_blank\" rel=\"noopener\">Road &amp; Track — " + escapeHtml(va.make + " " + shortA + " " + va.year) + "</a>";
+        html += "<a href=\"" + escapeHtml(rtB) + "\" target=\"_blank\" rel=\"noopener\">Road &amp; Track — " + escapeHtml(vb.make + " " + shortB + " " + vb.year) + "</a>";
+        html += "<a href=\"" + escapeHtml(tgA) + "\" target=\"_blank\" rel=\"noopener\">Top Gear — " + escapeHtml(va.make + " " + shortA) + "</a>";
+        html += "<a href=\"" + escapeHtml(tgB) + "\" target=\"_blank\" rel=\"noopener\">Top Gear — " + escapeHtml(vb.make + " " + shortB) + "</a>";
+        html += "</div>";
+
+        var out = $("cmp-output");
+        out.innerHTML = html;
+        out.hidden = false;
+      }
+
+      function bindSide(prefix) {
+        var make = $("cmp-" + prefix + "-make");
+        var year = $("cmp-" + prefix + "-year");
+        var model = $("cmp-" + prefix + "-model");
+        var trim = $("cmp-" + prefix + "-trim");
+
+        make.addEventListener("change", function () {
+          if (make.value) {
+            fillYearSelect(year);
+            year.disabled = false;
+            year.value = "";
+          } else {
+            year.disabled = true;
+            year.innerHTML = "<option value=\"\">Select year…</option>";
+          }
+          resetModels(prefix);
+          updateGenerateEnabled();
+        });
+
+        year.addEventListener("change", function () {
+          if (!year.value) {
+            resetModels(prefix);
+            updateGenerateEnabled();
+            return;
+          }
+          loadModels(prefix).then(updateGenerateEnabled);
+        });
+
+        model.addEventListener("change", function () {
+          loadTrims(prefix).then(updateGenerateEnabled);
+        });
+
+        trim.addEventListener("change", updateGenerateEnabled);
+      }
+
+      bindSide("a");
+      bindSide("b");
+
+      $("cmp-generate").addEventListener("click", function () {
+        var ida = $("cmp-a-trim").value;
+        var idb = $("cmp-b-trim").value;
+        var status = $("cmp-status");
+        var btn = $("cmp-generate");
+        if (!ida || !idb) return;
+        btn.disabled = true;
+        status.classList.remove("cmp-status--err");
+        status.textContent = "Loading EPA vehicle records…";
+        Promise.all([epaFetch("/" + encodeURIComponent(ida)), epaFetch("/" + encodeURIComponent(idb))])
+          .then(function (pair) {
+            var va = parseVehicle(pair[0]);
+            var vb = parseVehicle(pair[1]);
+            renderComparison(va, vb);
+            status.textContent = "Comparison generated from EPA data.";
+          })
+          .catch(function (e) {
+            status.textContent = "Could not build comparison: " + e.message;
+            status.classList.add("cmp-status--err");
+            $("cmp-output").hidden = true;
+            $("cmp-output").innerHTML = "";
+            $("cmp-epa-sbs").style.display = "none";
+          })
+          .then(function () {
+            btn.disabled = false;
+            updateGenerateEnabled();
+          });
+      });
+    })();
+  </script>
+</body>
+</html>
