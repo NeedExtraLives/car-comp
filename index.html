@@ -357,7 +357,7 @@
 
     <section class="compare-builder" id="compare-builder" aria-labelledby="compare-builder-title">
       <h2 id="compare-builder-title">Build a custom comparison (2024+)</h2>
-      <p class="press-meta">Pick <strong>two vehicles</strong> from <strong>ten major manufacturers</strong>. Model and trim lists are loaded live from the U.S. EPA <a href="https://www.fueleconomy.gov/feg/ws/">FuelEconomy.gov web service</a> (official fuel economy labels: engine, drivetrain, MPG, emissions, and related fields). If lists fail to load, open this file from a local web server or check your network — some browsers restrict <code>file://</code> requests.</p>
+      <p class="press-meta">Pick <strong>two vehicles</strong> from <strong>major manufacturers</strong>. Model and trim lists are loaded live from the U.S. EPA <a href="https://www.fueleconomy.gov/feg/ws/">FuelEconomy.gov web service</a> (official fuel economy labels: engine, drivetrain, MPG, emissions, and related fields). If lists fail to load, open this file from a local web server or check your network — some browsers restrict <code>file://</code> requests.</p>
       <div class="cmp-vehicles">
         <fieldset class="cmp-fieldset">
           <legend>Vehicle A</legend>
@@ -371,6 +371,7 @@
               <option value="Honda">Honda</option>
               <option value="Hyundai">Hyundai</option>
               <option value="Kia">Kia</option>
+              <option value="Lexus">Lexus</option>
               <option value="Mercedes-Benz">Mercedes-Benz</option>
               <option value="Nissan">Nissan</option>
               <option value="Toyota">Toyota</option>
@@ -408,6 +409,7 @@
               <option value="Honda">Honda</option>
               <option value="Hyundai">Hyundai</option>
               <option value="Kia">Kia</option>
+              <option value="Lexus">Lexus</option>
               <option value="Mercedes-Benz">Mercedes-Benz</option>
               <option value="Nissan">Nissan</option>
               <option value="Toyota">Toyota</option>
@@ -436,7 +438,7 @@
       </div>
       <div class="cmp-actions">
         <button type="button" class="cmp-generate" id="cmp-generate" disabled>Generate comparison</button>
-        <a class="cmp-epa-link" id="cmp-epa-sbs" href="https://www.fueleconomy.gov/" style="display:none;" target="_blank" rel="noopener">Open side-by-side on FuelEconomy.gov</a>
+        <a class="cmp-epa-link" id="cmp-epa-sbs" href="https://www.fueleconomy.gov/" style="display:none;" target="_blank" rel="noopener noreferrer">Open side-by-side on FuelEconomy.gov</a>
       </div>
       <p class="cmp-status" id="cmp-status" role="status" aria-live="polite"></p>
       <div id="cmp-output" hidden></div>
@@ -695,7 +697,8 @@
           .replace(/&/g, "&amp;")
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;");
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
       }
 
       function parseMenuItems(xmlText) {
@@ -974,12 +977,12 @@
         html += "<h3>Reviews &amp; long-form tests (search)</h3>";
         html += "<p class=\"press-meta\">No publication covers every trim; these searches narrow to Car and Driver, Road &amp; Track, and Top Gear.</p>";
         html += "<div class=\"links-grid\">";
-        html += "<a href=\"" + escapeHtml(cdA) + "\" target=\"_blank\" rel=\"noopener\">Car and Driver — " + escapeHtml(va.make + " " + shortA + " " + va.year) + "</a>";
-        html += "<a href=\"" + escapeHtml(cdB) + "\" target=\"_blank\" rel=\"noopener\">Car and Driver — " + escapeHtml(vb.make + " " + shortB + " " + vb.year) + "</a>";
-        html += "<a href=\"" + escapeHtml(rtA) + "\" target=\"_blank\" rel=\"noopener\">Road &amp; Track — " + escapeHtml(va.make + " " + shortA + " " + va.year) + "</a>";
-        html += "<a href=\"" + escapeHtml(rtB) + "\" target=\"_blank\" rel=\"noopener\">Road &amp; Track — " + escapeHtml(vb.make + " " + shortB + " " + vb.year) + "</a>";
-        html += "<a href=\"" + escapeHtml(tgA) + "\" target=\"_blank\" rel=\"noopener\">Top Gear — " + escapeHtml(va.make + " " + shortA) + "</a>";
-        html += "<a href=\"" + escapeHtml(tgB) + "\" target=\"_blank\" rel=\"noopener\">Top Gear — " + escapeHtml(vb.make + " " + shortB) + "</a>";
+        html += "<a href=\"" + escapeHtml(cdA) + "\" target=\"_blank\" rel=\"noopener noreferrer\">Car and Driver — " + escapeHtml(va.make + " " + shortA + " " + va.year) + "</a>";
+        html += "<a href=\"" + escapeHtml(cdB) + "\" target=\"_blank\" rel=\"noopener noreferrer\">Car and Driver — " + escapeHtml(vb.make + " " + shortB + " " + vb.year) + "</a>";
+        html += "<a href=\"" + escapeHtml(rtA) + "\" target=\"_blank\" rel=\"noopener noreferrer\">Road &amp; Track — " + escapeHtml(va.make + " " + shortA + " " + va.year) + "</a>";
+        html += "<a href=\"" + escapeHtml(rtB) + "\" target=\"_blank\" rel=\"noopener noreferrer\">Road &amp; Track — " + escapeHtml(vb.make + " " + shortB + " " + vb.year) + "</a>";
+        html += "<a href=\"" + escapeHtml(tgA) + "\" target=\"_blank\" rel=\"noopener noreferrer\">Top Gear — " + escapeHtml(va.make + " " + shortA) + "</a>";
+        html += "<a href=\"" + escapeHtml(tgB) + "\" target=\"_blank\" rel=\"noopener noreferrer\">Top Gear — " + escapeHtml(vb.make + " " + shortB) + "</a>";
         html += "</div>";
 
         var out = $("cmp-output");
@@ -1031,6 +1034,11 @@
         var status = $("cmp-status");
         var btn = $("cmp-generate");
         if (!ida || !idb) return;
+        if (!/^\d+$/.test(ida) || !/^\d+$/.test(idb)) {
+          status.textContent = "Invalid vehicle selection; choose a trim from the list.";
+          status.classList.add("cmp-status--err");
+          return;
+        }
         btn.disabled = true;
         status.classList.remove("cmp-status--err");
         status.textContent = "Loading EPA vehicle records…";
@@ -1057,3 +1065,6 @@
   </script>
 </body>
 </html>
+
+
+
