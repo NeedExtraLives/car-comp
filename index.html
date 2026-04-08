@@ -357,7 +357,7 @@
 
     <section class="compare-builder" id="compare-builder" aria-labelledby="compare-builder-title">
       <h2 id="compare-builder-title">Build a custom comparison (2024+)</h2>
-      <p class="press-meta">Pick <strong>two vehicles</strong> from <strong>major manufacturers</strong>. Model and trim lists are loaded live from the U.S. EPA <a href="https://www.fueleconomy.gov/feg/ws/">FuelEconomy.gov web service</a> (official fuel economy labels: engine, drivetrain, MPG, emissions, and related fields). If lists fail to load, open this file from a local web server or check your network — some browsers restrict <code>file://</code> requests.</p>
+      <p class="press-meta">Pick <strong>two vehicles</strong> from <strong>major manufacturers</strong>. Model and trim lists are loaded live from the U.S. EPA <a href="https://www.fueleconomy.gov/feg/ws/">FuelEconomy.gov web service</a> (official fuel economy labels: engine, drivetrain, MPG, emissions, and related fields). <strong>This builder only lists hybrid, plug-in hybrid, and similar electrified powertrains</strong> (it excludes gasoline-only, diesel-only, and full battery-electric vehicles). If lists fail to load, open this file from a local web server or check your network — some browsers restrict <code>file://</code> requests.</p>
       <div class="cmp-vehicles">
         <fieldset class="cmp-fieldset">
           <legend>Vehicle A</legend>
@@ -688,6 +688,9 @@
     (function () {
       var EPA = "https://www.fueleconomy.gov/ws/rest/vehicle";
       var YEARS = [2024, 2025, 2026];
+      var vehicleCache = {};
+      var modelOptionsCache = {};
+      var modelEligibilityCache = {};
 
       function $(id) { return document.getElementById(id); }
 
@@ -789,6 +792,134 @@
         });
       }
 
+      function mapWithLimit(items, limit, fn) {
+        return new Promise(function (resolve, reject) {
+          var n = items.length;
+          var results = new Array(n);
+          var next = 0;
+          var active = 0;
+          function pump() {
+            while (active < limit && next < n) {
+              var idx = next++;
+              active++;
+              (function (i) {
+                Promise.resolve(fn(items[i], i))
+                  .then(function (r) {
+                    results[i] = r;
+                    active--;
+                    if (next >= n && active === 0) resolve(results);
+                    else pump();
+                  })
+                  .catch(reject);
+              })(idx);
+            }
+          }
+          if (n === 0) resolve(results);
+          else pump();
+        });
+      }
+
+      function fetchVehicleById(id) {
+        if (vehicleCache[id]) return Promise.resolve(vehicleCache[id]);
+        return epaFetch("/" + encodeURIComponent(id))
+          .then(parseVehicle)
+          .then(function (v) {
+            vehicleCache[id] = v;
+            return v;
+          });
+      }
+
+      function sampleIndices(len, max) {
+        if (len <= max) {
+          var a = [];
+          for (var i = 0; i < len; i++) a.push(i);
+          return a;
+        }
+        var out = [];
+        var step = (len - 1) / (max - 1);
+        for (var j = 0; j < max; j++) out.push(Math.min(len - 1, Math.round(j * step)));
+        var seen = {};
+        var uniq = [];
+        for (var k = 0; k < out.length; k++) {
+          if (!seen[out[k]]) {
+            seen[out[k]] = true;
+            uniq.push(out[k]);
+          }
+        }
+        return uniq;
+      }
+
+      function isElectrifiedNonBev(v, hintText) {
+        var ft1 = (v.fuelType1 || "").toLowerCase();
+        var ft2 = (v.fuelType2 || "").toLowerCase();
+        var blob = ((hintText || "") + " " + (v.model || "") + " " + (v.eng_dscr || "") + " " + (v.vClass || "") + " " + (v.trany || "")).toLowerCase();
+        var phevComb = parseInt(v.phevComb, 10);
+        if (!isNaN(phevComb) && phevComb > 0) return true;
+        if (ft2.indexOf("electric") !== -1 && (ft1.indexOf("gasoline") !== -1 || ft1.indexOf("premium") !== -1)) return true;
+        if (ft1.indexOf("electric") !== -1) return false;
+        if (ft1.indexOf("diesel") !== -1) {
+          if (blob.indexOf("hybrid") !== -1) return true;
+          if ((v.evMotor || "").trim()) return true;
+          return false;
+        }
+        if (ft1.indexOf("hybrid") !== -1) return true;
+        if (blob.indexOf("hybrid") !== -1) return true;
+        if (blob.indexOf("plug-in") !== -1 || blob.indexOf("plug in") !== -1) return true;
+        if (blob.indexOf("phev") !== -1) return true;
+        var em = (v.evMotor || "").trim();
+        if (em && /[0-9]/.test(em) && (ft1.indexOf("gasoline") !== -1 || ft1.indexOf("premium") !== -1)) return true;
+        var combA = parseInt(v.combA08, 10);
+        var comb = parseInt(v.comb08, 10);
+        if (!isNaN(combA) && combA > 0 && !isNaN(comb) && comb > 0 && ft2) return true;
+        return false;
+      }
+
+      function fetchModelOptions(year, make, model) {
+        var ck = String(year) + "|" + make + "|" + model;
+        if (modelOptionsCache[ck]) return Promise.resolve(modelOptionsCache[ck]);
+        var q = "/menu/options?year=" + encodeURIComponent(year) + "&make=" + encodeURIComponent(make) + "&model=" + encodeURIComponent(model);
+        return epaFetch(q)
+          .then(parseMenuItems)
+          .then(function (items) {
+            modelOptionsCache[ck] = items;
+            return items;
+          });
+      }
+
+      function modelHasEligiblePowertrain(make, year, modelValue, modelText) {
+        var ek = String(year) + "|" + make + "|" + modelValue;
+        if (modelEligibilityCache[ek] !== undefined) {
+          return Promise.resolve(modelEligibilityCache[ek]);
+        }
+        return fetchModelOptions(year, make, modelValue)
+          .then(function (items) {
+            if (!items.length) {
+              modelEligibilityCache[ek] = false;
+              return false;
+            }
+            var ids = sampleIndices(items.length, 10).map(function (i) { return items[i].value; });
+            return mapWithLimit(ids, 4, function (vid) {
+              return fetchVehicleById(vid).then(function (veh) {
+                return isElectrifiedNonBev(veh, modelText);
+              });
+            }).then(function (flags) {
+              var ok = flags.some(Boolean);
+              modelEligibilityCache[ek] = ok;
+              return ok;
+            });
+          });
+      }
+
+      function filterTrimItemsByPowertrain(items) {
+        return mapWithLimit(items, 4, function (item) {
+          return fetchVehicleById(item.value).then(function (veh) {
+            return isElectrifiedNonBev(veh, item.text) ? item : null;
+          });
+        }).then(function (rows) {
+          return rows.filter(Boolean);
+        });
+      }
+
       function resetModels(prefix) {
         var model = $("cmp-" + prefix + "-model");
         var trim = $("cmp-" + prefix + "-trim");
@@ -819,12 +950,26 @@
               status.textContent = "No EPA models listed for " + make + " " + year + ". Try another year or make.";
               return;
             }
-            var opts = items.map(function (i) {
-              return { value: i.value, text: i.text };
+            status.textContent = "Filtering to hybrid / plug-in powertrains…";
+            return mapWithLimit(items, 3, function (mItem) {
+              return modelHasEligiblePowertrain(make, year, mItem.value, mItem.text).then(function (ok) {
+                return ok ? mItem : null;
+              });
+            }).then(function (rows) {
+              var eligible = rows.filter(Boolean);
+              if (!eligible.length) {
+                status.textContent = "No hybrid or plug-in models found for " + make + " " + year + " in this EPA sample. Try another make or year.";
+                setSelectOptions(model, [], "Select model…", "value", "text");
+                model.disabled = true;
+                return;
+              }
+              var opts = eligible.map(function (i) {
+                return { value: i.value, text: i.text };
+              });
+              setSelectOptions(model, opts, "Select model…", "value", "text");
+              model.disabled = false;
+              status.textContent = "";
             });
-            setSelectOptions(model, opts, "Select model…", "value", "text");
-            model.disabled = false;
-            status.textContent = "";
           })
           .catch(function (e) {
             status.textContent = "Could not load models: " + e.message;
@@ -845,11 +990,9 @@
         }
         trim.disabled = true;
         setSelectOptions(trim, [], "Loading trims…", "value", "text");
-        status.textContent = "Loading trims…";
+        status.textContent = "Loading and filtering trims…";
         status.classList.remove("cmp-status--err");
-        var q = "/menu/options?year=" + encodeURIComponent(year) + "&make=" + encodeURIComponent(make) + "&model=" + encodeURIComponent(modelName);
-        return epaFetch(q)
-          .then(parseMenuItems)
+        return fetchModelOptions(year, make, modelName)
           .then(function (items) {
             if (!items.length) {
               status.textContent = "No EPA trims found for that model.";
@@ -857,15 +1000,23 @@
               trim.disabled = true;
               return;
             }
-            var opts = items.map(function (i) {
-              return { value: i.value, text: i.text };
+            return filterTrimItemsByPowertrain(items).then(function (filtered) {
+              if (!filtered.length) {
+                status.textContent = "No hybrid or plug-in trims found for that model.";
+                setSelectOptions(trim, [], "Select trim…", "value", "text");
+                trim.disabled = true;
+                return;
+              }
+              var opts = filtered.map(function (i) {
+                return { value: i.value, text: i.text };
+              });
+              setSelectOptions(trim, opts, "Select trim…", "value", "text");
+              trim.disabled = false;
+              if (opts.length === 1) {
+                trim.selectedIndex = 1;
+              }
+              status.textContent = "";
             });
-            setSelectOptions(trim, opts, "Select trim…", "value", "text");
-            trim.disabled = false;
-            if (opts.length === 1) {
-              trim.selectedIndex = 1;
-            }
-            status.textContent = "";
           })
           .catch(function (e) {
             status.textContent = "Could not load trims: " + e.message;
@@ -1042,10 +1193,10 @@
         btn.disabled = true;
         status.classList.remove("cmp-status--err");
         status.textContent = "Loading EPA vehicle records…";
-        Promise.all([epaFetch("/" + encodeURIComponent(ida)), epaFetch("/" + encodeURIComponent(idb))])
+        Promise.all([fetchVehicleById(ida), fetchVehicleById(idb)])
           .then(function (pair) {
-            var va = parseVehicle(pair[0]);
-            var vb = parseVehicle(pair[1]);
+            var va = pair[0];
+            var vb = pair[1];
             renderComparison(va, vb);
             status.textContent = "Comparison generated from EPA data.";
           })
